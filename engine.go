@@ -9,8 +9,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path"
-	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -23,12 +22,12 @@ var (
 )
 
 var (
-	red = "red"
-	//blue    = "blue"
-	//magenta = "magenta"
-	//green   = "green"
-	//cyan    = "cyan"
-	yellow = "yellow"
+	blue    = "blue"
+	magenta = "magenta"
+	green   = "green"
+	cyan    = "cyan"
+	yellow  = "yellow"
+	hiblue  = "hiblue"
 )
 
 func run(curpath string) {
@@ -40,8 +39,11 @@ func run(curpath string) {
 	if buildPkg != "" {
 		files = strings.Split(buildPkg, ",")
 	}
+	colorPrint(hiblue, "watching...")
 	newWatcher(paths, files)
-
+	Autobuild(files)
+	<-exit
+	runtime.Goexit()
 }
 
 func newWatcher(paths []string, files []string) {
@@ -65,6 +67,7 @@ func newWatcher(paths []string, files []string) {
 		for {
 			select {
 			case e := <-watcher.Events:
+
 				isbuild := true
 
 				if !InWatchExt(e.Name) {
@@ -73,10 +76,11 @@ func newWatcher(paths []string, files []string) {
 				mt := getLastTime(e.Name)
 
 				if t := eventTime[e.Name]; mt == t {
-					logrus.Infof("not updated, skip")
+					//logrus.Infof("not updated, skip")
 					isbuild = false
 				} else {
-					colorPrint(red, e.Name+"file changes")
+
+					colorPrint(hiblue, e.Name+" file changes")
 				}
 				eventTime[e.Name] = mt
 				if isbuild {
@@ -105,14 +109,14 @@ var building bool
 
 func Autobuild(files []string) {
 	if building {
-		colorPrint("cyan", "still in building...")
+		colorPrint(blue, "still in building...")
 		return
 	}
 	building = true
 	defer func() {
 		building = false
 	}()
-	colorPrint("cyan", "Start building...")
+	colorPrint(cyan, "Start building...")
 
 	if err := os.Chdir(currpath); err != nil {
 		logrus.Errorf("Chdir Error: %+v\n", err)
@@ -143,14 +147,15 @@ func Restart(output string) {
 }
 
 func start(appname string) {
-	colorPrint(red, "Restart...")
+	colorPrint(magenta, "Restart...")
 	cmd = exec.Command(appname)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	go func() {
+		colorPrint(green, "runing...")
 		_ = cmd.Run()
 	}()
-	started <- true
+
 }
 
 func kill() {
@@ -163,7 +168,7 @@ func kill() {
 		// err := cmd.Process.Kill()
 		err := killAllProcesses(cmd.Process.Pid)
 		if err != nil {
-			fmt.Println("Kill -> ", err)
+
 		}
 	}
 }
@@ -301,16 +306,16 @@ func collectFile(currpath string, paths *[]string) {
 	}
 	useDirectory := false
 	for _, FileInfo := range FileInfos {
-		if strings.HasSuffix(FileInfo.Name(), "docs") {
+		//if strings.HasSuffix(FileInfo.Name(), "docs") {
+		//	continue
+		//}
+		//if strings.HasSuffix(FileInfo.Name(), "swagger") {
+		//	continue
+		//}
+		if !FileInfo.IsDir() {
 			continue
 		}
-		if strings.HasSuffix(FileInfo.Name(), "swagger") {
-			continue
-		}
-		//是否是排除的路径。
-		if isExcluded(path.Join(currpath, FileInfo.Name())) {
-			continue
-		}
+
 		if FileInfo.IsDir() && FileInfo.Name()[0] != '.' {
 			collectFile(currpath+"/"+FileInfo.Name(), paths)
 			continue
@@ -323,7 +328,7 @@ func collectFile(currpath string, paths *[]string) {
 	}
 }
 
-func isExcluded(join string) bool {
+/*func isExcluded(join string) bool {
 	absFilePath, err := filepath.Abs(join)
 	if err != nil {
 		logrus.Errorf("Getting absolute path %s error \n", join)
@@ -341,3 +346,4 @@ func isExcluded(join string) bool {
 	}
 	return false
 }
+*/

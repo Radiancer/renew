@@ -15,21 +15,10 @@ var (
 		"magenta": color.FgMagenta,
 		"cyan":    color.FgCyan,
 		"white":   color.FgWhite,
+		"hiblue":  color.FgHiBlue,
 	}
 )
 
-func watchPrint() {
-	colorPrint("blue", "watchint ...")
-}
-func buildingPrint() {
-	colorPrint("magenta", "building...")
-}
-func runingPrint() {
-	colorPrint("green", "runing...")
-}
-func updatePrint(name string) {
-	colorPrint("red", name+"file changes")
-}
 func getColor(name string) color.Attribute {
 	if v, ok := colorMap[name]; ok {
 		return v
