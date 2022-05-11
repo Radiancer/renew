@@ -1,0 +1,42 @@
+package main
+
+import (
+	"github.com/fatih/color"
+)
+
+var (
+
+	// TODO: support more colors
+	colorMap = map[string]color.Attribute{
+		"red":     color.FgRed,
+		"green":   color.FgGreen,
+		"yellow":  color.FgYellow,
+		"blue":    color.FgBlue,
+		"magenta": color.FgMagenta,
+		"cyan":    color.FgCyan,
+		"white":   color.FgWhite,
+	}
+)
+
+func watchPrint() {
+	colorPrint("blue", "watchint ...")
+}
+func buildingPrint() {
+	colorPrint("magenta", "building...")
+}
+func runingPrint() {
+	colorPrint("green", "runing...")
+}
+func updatePrint(name string) {
+	colorPrint("red", name+"file changes")
+}
+func getColor(name string) color.Attribute {
+	if v, ok := colorMap[name]; ok {
+		return v
+	}
+	return color.FgWhite
+}
+func colorPrint(colstr string, str string) {
+	col := getColor(colstr)
+	color.New(col).Println(str)
+}

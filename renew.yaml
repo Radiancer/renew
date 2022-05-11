@@ -1,0 +1,17 @@
+#项目名称
+appname: ""
+#指定输出执行的程序路径
+output: ""
+#需要监听的后缀名
+watch_exts: [".go"]
+#需要监听的路径
+watch_path: []
+#需要编译的包或文件
+build_pkg: ""
+#需要排除的路径
+excluded_paths:
+
+disable_run: false
+
+
+
